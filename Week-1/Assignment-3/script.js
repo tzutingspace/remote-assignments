@@ -4,10 +4,10 @@ function countAandB(input) {
     var count_b = 0;
     for (var char of input) {
         if (char == 'a') {
-            count_a += 1
+            count_a += 1;
         }
         else if (char == 'b') {
-            count_b += 1
+            count_b += 1;
         }
     }
     if ((count_a + count_b) != 0) {
@@ -22,7 +22,7 @@ function toNumber(input) {
     // your code here
     var output = [];
     for (let char of input) {
-        output.push(char.charCodeAt(0) - 96)
+        output.push(char.charCodeAt(0) - 96);
     }
     return output
 }
