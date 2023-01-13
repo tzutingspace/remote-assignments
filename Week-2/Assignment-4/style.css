@@ -1,0 +1,79 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+/* header navigation style */
+.nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: rgb(238, 238, 238);
+}
+
+.nav div:first-child {
+    margin-right: auto;
+}
+
+.nav div {
+    justify-content: flex-end;
+    padding: 10px 25px;
+}
+
+/* h1 style */
+h1 {
+    text-align: center;
+    background-color: rgb(207, 220, 236);
+    margin: 0;
+    padding: 6%;
+}
+
+/* section Title style */
+section {
+    text-align: center;
+}
+
+
+/* section content style */
+div.section_content {
+    display: flex;
+    justify-content: center;
+    width: 100vw;
+}
+
+div.section_content_hide {
+    display: none;
+}
+
+
+div.content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    max-width: 1200px;
+    list-style: none;
+    width: 90vw;
+    /* padding: 0; */
+}
+
+div.content div {
+    width: 45%;
+    /* flex: none; */ /* 固定用 */
+    height: 20vh;
+    margin: 5px;
+    background-color: rgb(139, 152, 168);
+    padding: 10px;
+    align-items: center;
+}
+
+
+/* button and content style */
+button {
+    background-color: rgb(224, 237, 253);
+    border: 0;
+    padding: 1.5em;
+}
