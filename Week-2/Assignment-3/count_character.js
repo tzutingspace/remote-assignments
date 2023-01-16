@@ -1,13 +1,14 @@
 function count(input) {
   // your code here
   const outputObject = {};
-  for (const item of input) {
+  // for (const item of input) {
+  input.forEach((item) => {
     if (!(item in outputObject)) {
       outputObject[item] = 1;
     } else if (item in outputObject) {
       outputObject[item] += 1;
     }
-  }
+  });
   return outputObject;
 }
 
@@ -18,13 +19,14 @@ console.log(count(input1));
 function groupByKey(input) {
   // your code here
   const outputObject = {};
-  for (const itemObj of input) {
+  // for (const itemObj of input) {
+  input.forEach((itemObj) => {
     if (!(itemObj.key in outputObject)) {
       outputObject[itemObj.key] = itemObj.value;
     } else if (itemObj.key in outputObject) {
       outputObject[itemObj.key] += itemObj.value;
     }
-  }
+  });
   return outputObject;
 }
 

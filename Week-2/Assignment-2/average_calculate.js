@@ -1,8 +1,10 @@
+/* eslint-disable no-plusplus */
 function avg(data) {
   // your code here
   let totalPrice = 0;
-  for (const product of data.products) {
-    totalPrice += product.price;
+  // for (const product of data.products) {
+  for (let i = 0; i < data.products.length; i++) {
+    totalPrice += data.products[i].price;
   }
   return totalPrice / data.size;
 }
