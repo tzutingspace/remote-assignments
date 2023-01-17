@@ -31,6 +31,11 @@ h1 {
     padding: 6%;
 }
 
+h1:hover {
+    background-color: yellow;
+    cursor: zoom-in;
+}
+
 /* section Title style */
 section {
     text-align: center;

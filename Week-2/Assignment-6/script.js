@@ -1,8 +1,9 @@
 /* eslint-disable no-undef */
 
 // // request 1: Click to Change Text.
-$('h1').on('click', () => {
+$('h1').on('click', (event) => {
   $('h1').text('Have a Good Time');
+  console.log(event);
 });
 
 // // request 2: Click to Show More Content Boxes.
@@ -13,6 +14,7 @@ $('#btn_more_content').on('click', () => {
     secondContent.css('display') === 'none'
   ) {
     secondContent.css('display', 'flex');
+    secondContent[0].scrollIntoView();
   } else {
     secondContent.css('display', 'none');
   }

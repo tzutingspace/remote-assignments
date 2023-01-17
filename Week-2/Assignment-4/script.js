@@ -12,6 +12,7 @@ buttonMoreContent.addEventListener('click', () => {
   if (!contentBox.style.display || contentBox.style.display === 'none') {
     contentBox.style.display = 'flex';
     buttonMoreContent.textContent = 'Hide Content';
+    contentBox.scrollIntoView();
   } else {
     contentBox.style.display = 'none';
     buttonMoreContent.textContent = 'Show Content';
