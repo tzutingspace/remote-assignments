@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // assignment 3-3: make a HTTP request by AJAX to (localhost:3000/data?number=N)
+        // create a XHR object
+        const SumRequest = new XMLHttpRequest()
+        // define a callback function
+        SumRequest.onreadystatechange = () => {
+            if (SumRequest.readyState === 4 && SumRequest.status === 200){
+                    document.getElementById('theAnswer').innerText = SumRequest.responseText;
+            }
+        };
+        // 當點擊時, open & send xhr
+        function getSumData(){
+            const number = document.getElementById('inputNumber').value;
+            // console.log(number);
+            SumRequest.open("GET", "/data?number="+ number);
+            SumRequest.send();
+        }
+    </script>
+    <title>SUM</title>
+</head>
+<body>
+    <h1>AppWorks Week-3 Assignment</h1>
+    <input type="text" id="inputNumber">
+    <button type="button" onclick="getSumData()">Calculate</button>
+    <h3 id="theAnswer"></h3>
+</body>
+</html>
