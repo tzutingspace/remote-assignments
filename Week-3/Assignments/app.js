@@ -17,6 +17,7 @@ app.get('/', (req, res) => {
 
 // assignment 2: 建立GET method (/data) & 處理 query string
 app.get('/data', (req, res) => {
+  // console.dir(req);
   const numberString = req.query.number;
   const number = Number(numberString);
   console.log(number);
@@ -26,7 +27,8 @@ app.get('/data', (req, res) => {
     res.send('Wrong Parameter');
   } else {
     const output = ((1 + number) * number) / 2;
-    res.send(`Result: ${output}`);
+    // res.send(`Result: ${output}`);
+    res.send(`${output}`);
   }
 });
 
@@ -46,10 +48,11 @@ app.get('/myName', (req, res) => {
     <button type="submit">Submit</button>
   </form>`;
   return res.send(usertempHTML);
+  // return res.render('/user.html');
 });
 
 app.get('/trackName', (req, res) => {
-  console.log(req);
+  // console.log(req);
   const { name } = req.query;
   console.log(`trackName route: ${name}`);
   res.cookie('name', name);

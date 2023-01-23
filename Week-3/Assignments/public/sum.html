@@ -11,23 +11,26 @@
         // define a callback function
         SumRequest.onreadystatechange = () => {
             if (SumRequest.readyState === 4 && SumRequest.status === 200){
-                    document.getElementById('theAnswer').innerText = SumRequest.responseText;
+                    document.getElementById("theAnswer").innerText = "Result: " + SumRequest.responseText;
             }
         };
         // 當點擊時, open & send xhr
         function getSumData(){
+            event.preventDefault()
             const number = document.getElementById('inputNumber').value;
             // console.log(number);
             SumRequest.open("GET", "/data?number="+ number);
-            SumRequest.send();
+            return SumRequest.send();
         }
     </script>
     <title>SUM</title>
 </head>
 <body>
     <h1>AppWorks Week-3 Assignment</h1>
-    <input type="text" id="inputNumber">
-    <button type="button" onclick="getSumData()">Calculate</button>
+    <form name="from">
+        <input type="text" id="inputNumber" placeholder="請輸入正整數">
+        <button type="submit" onclick="getSumData()">Calculate</button>
+    </form>
     <h3 id="theAnswer"></h3>
 </body>
 </html>
