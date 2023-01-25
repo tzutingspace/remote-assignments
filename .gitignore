@@ -1,0 +1,17 @@
+# 
+*.pdf
+
+
+# OS or Editor folders
+.DS_Store
+.DS_Stroe?
+._*
+.Spotlight-V100
+.Trashes
+
+# Folders to ignore
+node_modules/*
+
+#eslint and prett
+.eslintrc.json
+.prettierrc.json
