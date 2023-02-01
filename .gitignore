@@ -1,6 +1,6 @@
 # 
 *.pdf
-
+.env
 
 # OS or Editor folders
 .DS_Store
@@ -15,3 +15,5 @@ node_modules/*
 #eslint and prett
 .eslintrc.json
 .prettierrc.json
+
+.gitignore
