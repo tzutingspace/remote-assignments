@@ -18,12 +18,26 @@ app.set('view engine', 'pug');
 
 // Function //
 
-// 處理登入錯誤
+// 處理錯誤(create error)
 // 登入error status 參考：https://stackoverflow.com/questions/32752578/whats-the-appropriate-http-status-code-to-return-if-a-user-tries-logging-in-wit
 function errorHandler(errMessage, errStatus) {
   const errorObject = new Error(errMessage);
   errorObject.status = errStatus;
   return errorObject;
+}
+
+// ASYNC/AWAIT with asyncHandler function (重複使用的錯誤檢測方式)
+// 處理如果連線到database出錯的狀況
+function asyncHandler(cb) {
+  return async (req, res, next) => {
+    try {
+      await cb(req, res, next); // 因為是處理router 的事件， 所以需要包含normal route handling parameter
+    } catch (err) {
+      console.log(err); // 在server log 顯示的async/ await錯誤
+      const errfeeedback = errorHandler('資料庫連線Error', 500); // 傳到 app 的 error 來處理
+      next(errfeeedback);
+    }
+  };
 }
 
 // 驗證Email
@@ -58,58 +72,63 @@ app.get('/member', (req, res) => {
   return res.render('member', { email });
 });
 
-app.post('/signUp', async (req, res, next) => {
-  console.log('@signup的req: ', req.body);
-  const { email, password } = req.body;
-  // 先檢查email ＆ password 是否有輸入
-  if (email && password && ValidateEmail(email)) {
-    // 先檢查是否存在相同email
-    const result = await database.getUser(email, password);
-    if (result) {
-      const err = errorHandler('This email was be registered.', 401);
-      return next(err);
-      // return res.render('homepage', {
-      //   error: 'This email was be registered.',
-      // });
+app.post('/signUp', asyncHandler(async (req, res, next) => {
+    console.log('@signup的req: ', req.body);
+    const { email, password } = req.body;
+    // 先檢查email ＆ password 是否有輸入
+    if (email && password && ValidateEmail(email)) {
+      // 先檢查是否存在相同email
+      const result = await database.getUser(email, password);
+      if (result) {
+        const err = errorHandler('This email was be registered.', 401);
+        return next(err);
+        // return res.render('homepage', {
+        //   error: 'This email was be registered.',
+        // });
+      }
+      // 沒有相同email, createUser
+      const createResult = await database.createUser(email, password);
+      res.cookie('email', email);
+      return res.redirect('member');
     }
-    // 沒有相同email, createUser
-    const createResult = await database.createUser(email, password);
-    res.cookie('email', email);
-    return res.redirect('member');
-  }
-  const err = errorHandler('Invalid email or password.', 401);
-  return next(err);
-  // return res.render('homepage', {
-  //   error: 'Invalid email or password.',
-  // });
-});
-
-app.post('/signIn', async (req, res, next) => {
-  console.log('@signIn的req: ', req.body);
-  const { email, password } = req.body;
-  // 檢查是登入email與password是否匹對
-  const loginResult = await database.checkLogin(email, password);
-  if (loginResult) {
-    console.log('確認有該用戶資料且密碼正確');
-    // 提供cookie給client for 進入 memeber route
-    res.cookie('email', email);
-    return res.redirect('/member');
-    // return res.render('member', { email });
-  }
-  const user = await database.getUser(email, password);
-  if (user) {
-    console.log('確認有該用戶資料但密碼錯誤');
-    const err = errorHandler('This Password is not correct!', 401);
+    const err = errorHandler('Invalid email or password.', 401);
     return next(err);
-    // return res.render('homepage', { error: 'This Password is not correct!' });
-  }
-  console.log('無該用戶資料');
-  const err = errorHandler('This email is not registered.', 401);
-  return next(err);
-  // return res.render('homepage', { error: 'This email is not registered.' });
-});
+    // return res.render('homepage', {
+    //   error: 'Invalid email or password.',
+    // });
+  })
+);
 
-// 如何處理ERROR (Add an Error habdler) >> Express有內建的(就是列出所有err)
+app.post('/signIn', asyncHandler(async (req, res, next) => {
+    console.log('@signIn的req: ', req.body);
+    const { email, password } = req.body;
+    if (email && password && ValidateEmail(email)) {
+      // 檢查是登入email與password是否匹對
+      const loginResult = await database.checkLogin(email, password);
+      if (loginResult) {
+        console.log('確認有該用戶資料且密碼正確');
+        // 提供cookie給client for 進入 memeber route
+        res.cookie('email', email);
+        return res.redirect('/member');
+      }
+      const user = await database.getUser(email, password);
+      if (user) {
+        console.log('確認有該用戶資料但密碼錯誤');
+        const err = errorHandler('This Password is not correct!', 401);
+        return next(err);
+        // return res.render('homepage', { error: 'This Password is not correct!' });
+      }
+      console.log('無該用戶資料');
+      const err = errorHandler('This email is not registered.', 401);
+      return next(err);
+      // return res.render('homepage', { error: 'This email is not registered.'});
+    }
+    const err = errorHandler('Invalid email', 401);
+    return next(err);
+  })
+);
+
+// 處理ERROR (Add an Error habdler)
 // We can overwrite that behavior by putting it in our own error handler. > Send a Error Templete.
 app.use((err, req, res, next) => {
   res.locals.error = err;
