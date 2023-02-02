@@ -18,7 +18,7 @@ app.set('view engine', 'pug');
 
 // Route //
 app.get('/', (req, res) => {
-  res.clearCookie('email'); // 測試用
+  // res.clearCookie('email'); // 測試用
   const { email } = req.cookies;
   if (email) {
     return res.redirect('/member');
@@ -37,6 +37,7 @@ app.get('/member', (req, res) => {
 app.post('/signUp', async (req, res) => {
   console.log('@signup的req: ', req.body);
   const { email, password } = req.body;
+  // 先檢查email ＆ password 是否有輸入
   if (email && password) {
     // 先檢查是否存在相同email
     const result = await database.getUser(email, password);
@@ -47,7 +48,8 @@ app.post('/signUp', async (req, res) => {
     }
     // 沒有相同email, createUser
     const createResult = await database.createUser(email, password);
-    return res.render('member', { email: createResult.email });
+    res.cookie('email', email);
+    return res.redirect('member');
   }
   return res.render('homepage', {
     error: 'Missing email or password.',
