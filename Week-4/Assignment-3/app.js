@@ -38,7 +38,7 @@ app.post('/signUp', async (req, res) => {
   console.log('@signup的req: ', req.body);
   const { email, password } = req.body;
   // 先檢查email ＆ password 是否有輸入
-  if (email && password) {
+  if (email && password && ValidateEmail(email)) {
     // 先檢查是否存在相同email
     const result = await database.getUser(email, password);
     if (result) {
@@ -52,7 +52,7 @@ app.post('/signUp', async (req, res) => {
     return res.redirect('member');
   }
   return res.render('homepage', {
-    error: 'Missing email or password.',
+    error: 'Invalid email or password.',
   });
 });
 
@@ -82,3 +82,15 @@ app.post('/signIn', async (req, res) => {
 app.listen(port, () => {
   console.log(`The application is running on port ${port}`);
 });
+
+// Function
+function ValidateEmail(inputText) {
+  // console.log(inputText);
+  // reference: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
+  // reference: https://www.geeksforgeeks.org/form-validation-using-html-javascript/
+  const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g;
+  if (mailformat.test(inputText)) {
+    return true;
+  }
+  return false;
+}
