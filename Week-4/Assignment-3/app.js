@@ -1,5 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+
 const database = require('./database');
 
 // call express function to create an Express application
@@ -31,11 +33,11 @@ function errorHandler(errMessage, errStatus) {
 function asyncHandler(cb) {
   return async (req, res, next) => {
     try {
-      await cb(req, res, next); // 因為是處理router 的事件， 所以需要包含normal route handling parameter
+      await cb(req, res, next);
     } catch (err) {
       console.log(err); // 在server log 顯示的async/ await錯誤
-      const errfeeedback = errorHandler('資料庫連線Error', 500); // 傳到 app 的 error 來處理
-      next(errfeeedback);
+      const errfeedback = errorHandler('資料庫連線Error', 500); // 傳到 app 的 error 來處理
+      next(errfeedback);
     }
   };
 }
@@ -50,6 +52,19 @@ function ValidateEmail(inputText) {
     return true;
   }
   return false;
+}
+
+// 處理密碼 reference: https://www.makeuseof.com/nodejs-bcrypt-hash-verify-salt-password/
+const saltRounds = 10;
+
+// 產生 hashPassword
+async function hashPassword(plaintextPassword) {
+  return bcrypt.hash(plaintextPassword, saltRounds);
+}
+
+// compare password
+async function comparePassword(plaintextPassword, hash) {
+  return bcrypt.compare(plaintextPassword, hash);
 }
 
 // Function End //
@@ -75,53 +90,53 @@ app.get('/member', (req, res) => {
 app.post('/signUp', asyncHandler(async (req, res, next) => {
     console.log('@signup的req: ', req.body);
     const { email, password } = req.body;
-    // 先檢查email ＆ password 是否有輸入
+    // 1. 先檢查email ＆ password 是否有輸入
     if (email && password && ValidateEmail(email)) {
-      // 先檢查是否存在相同email
-      const result = await database.getUser(email, password);
+      // 2. 檢查是否存在相同email
+      const result = await database.getUser(email);
       if (result) {
         const err = errorHandler('This email was be registered.', 401);
         return next(err);
-        // return res.render('homepage', {
-        //   error: 'This email was be registered.',
-        // });
       }
-      // 沒有相同email, createUser
-      const createResult = await database.createUser(email, password);
+      // 3. 沒有相同email, createUser 並轉換plainText password to hash type.
+      const hashResult = await hashPassword(password);
+      const createResult = await database.createUser(email, hashResult);
+      // console.log(createResult);
       res.cookie('email', email);
       return res.redirect('member');
     }
     const err = errorHandler('Invalid email or password.', 401);
     return next(err);
-    // return res.render('homepage', {
-    //   error: 'Invalid email or password.',
-    // });
   })
 );
 
 app.post('/signIn', asyncHandler(async (req, res, next) => {
     console.log('@signIn的req: ', req.body);
     const { email, password } = req.body;
+    // 1. 先檢查email ＆ password 是否有輸入
     if (email && password && ValidateEmail(email)) {
-      // 檢查是登入email與password是否匹對
-      const loginResult = await database.checkLogin(email, password);
-      if (loginResult) {
+      // 2. 檢查是否有該用戶存在
+      const user = await database.getUser(email);
+      if (!user) {
+        console.log('無該用戶資料');
+        const err = errorHandler('This email is not registered.', 401);
+        return next(err);
+        // console.log('確認有該用戶資料但密碼錯誤');
+        // const err = errorHandler('This Password is not correct!', 401);
+        // return next(err);
+      }
+      // 2. 檢查是登入email與password是否匹對
+      const compareResult = await comparePassword(password, user.password);
+      // const loginResult = await database.checkLogin(email, hashResult);
+      if (compareResult) {
         console.log('確認有該用戶資料且密碼正確');
         // 提供cookie給client for 進入 memeber route
         res.cookie('email', email);
         return res.redirect('/member');
       }
-      const user = await database.getUser(email, password);
-      if (user) {
-        console.log('確認有該用戶資料但密碼錯誤');
-        const err = errorHandler('This Password is not correct!', 401);
-        return next(err);
-        // return res.render('homepage', { error: 'This Password is not correct!' });
-      }
-      console.log('無該用戶資料');
-      const err = errorHandler('This email is not registered.', 401);
+      console.log('確認有該用戶資料但密碼錯誤');
+      const err = errorHandler('This Password is not correct!', 401);
       return next(err);
-      // return res.render('homepage', { error: 'This email is not registered.'});
     }
     const err = errorHandler('Invalid email', 401);
     return next(err);

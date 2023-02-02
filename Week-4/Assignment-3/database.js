@@ -13,25 +13,13 @@ const pool = mysql
   .promise();
 
 // 依據email 查是否有該用戶
-async function getUser(email, password) {
+async function getUser(email) {
   const [rows] = await pool.query(
     `
     SELECT * FROM user
     WHERE email = ?
     `,
     [email]
-  );
-  return rows[0];
-}
-
-// 確認email是否匹配
-async function checkLogin(email, password) {
-  const [rows] = await pool.query(
-    `
-    SELECT * FROM user
-    WHERE email = ? AND password = ?
-    `,
-    [email, password]
   );
   return rows[0];
 }
@@ -48,9 +36,20 @@ async function createUser(email, password) {
   return getUser(email);
 }
 
+// // 確認email是否匹配
+// async function checkLogin(email, password) {
+//   const [rows] = await pool.query(
+//     `
+//     SELECT * FROM user
+//     WHERE email = ? AND password = ?
+//     `,
+//     [email, password]
+//   );
+//   return rows[0];
+// }
+
 // exports
 module.exports = {
   getUser,
   createUser,
-  checkLogin,
 };
